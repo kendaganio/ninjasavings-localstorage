@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Backbone + Local Storage</title>
+  <style type="text/css">
+
+    body {
+      font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+    }
+
+    h1 {
+      letter-spacing: -1px;
+    }
+
+    .container{
+      width: 360px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #input {
+      font-size: 20px;
+      padding: 4px;
+      width: 96%;
+    }
+
+    #list{
+      margin: 0;
+      padding: 5px 0 0 0px;
+    }
+
+    #list li{
+      list-style: none;
+      text-align: left;
+      background: #d3ecdd;
+      margin-bottom: 5px;
+      padding: 8px;
+      border-radius: 6px;
+      -moz-border-radius: 6px;
+      -o-border-radius: 6px;
+      -webkit-border-radius: 6px;
+      border: 1px solid #6fc28d;
+    }
+
+    .right {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div id="savings-app" class="container">
+    <h1>Saving is fun! </h1>
+    <input type="number" id="input" placeholder="How much did you save today?">
+    <ul id="list"></ul>
+    <hr>
+    Total Savings: PHP <span id="total-savings"></span>
+  </div>
+
+
+        <!-- JS INCLUDES -->
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.0/jquery-1.8.0.min.js"></script>
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.0/backbone.localStorage-min.js"></script>
+
+  <!-- TEMPLATES -->
+  <script type="text/template" id="saving-item">
+    PHP <%= amount %>
+    <span class="right">
+    <%= new Date(date_posted).getMonth() + 1 %> <%= new Date(date_posted).getDate() %>, <%= new Date(date_posted).getFullYear() %>
+    </span>
+  </script>
+
+  <!-- ACTUAL WORKING STUFF -->
+  <script type="text/javascript">
+    (function($){
+
+      window.Saving = Backbone.Model.extend({
+        defaults: {
+          amount: 0,
+          date_posted: ''
+        },
+
+        clear: function(){
+          this.destroy();
+        }
+      });
+
+      window.SavingCollection = Backbone.Collection.extend({
+        model: Saving,
+        localStorage: new Store("savings_account")
+      });
+
+      var Savings = new SavingCollection;
+
+      window.SavingView = Backbone.View.extend({
+        tagName: 'li',
+        className: 'saving',
+
+        template: _.template($('#saving-item').html()),
+
+        render: function(){
+          this.$el.html(this.template(this.model.toJSON()));
+          return this;
+        },
+      });
+
+      window.AppView = Backbone.View.extend({
+        el: $('#savings-app'),
+
+        events: {
+          "keypress #input": "createOnEnter"
+        },
+
+        initialize: function(){
+          this.input = this.$("#input");
+          this.totalAmt = $("#total-savings");
+
+          Savings.bind('all', this.render, this);
+          Savings.bind('add', this.addOne, this);
+          Savings.bind('reset', this.addAll, this);
+
+          Savings.fetch();
+        },
+
+        render: function(){
+          this.totalAmt.text(this.amount);
+        },
+
+        addOne: function(saving){
+          var view = new SavingView({model: saving});
+          this.$('#list').append(view.render().el);
+        },
+
+        addAll: function(){
+          Savings.each(this.addOne);
+        },
+
+        createOnEnter: function(e){
+          if(e.keyCode != 13) return;
+          if(!this.input.val()) return;
+
+          Savings.create({ amount: this.input.val(), date_posted: new Date()})
+          this.input.val('');
+        }
+
+      });
+
+      var App = new AppView;
+    })(jQuery);
+  </script>
+</body>
+</html>
