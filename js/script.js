@@ -22,14 +22,29 @@
     tagName: 'li',
     className: 'saving',
 
+    initialize: function(){
+      this.model.bind('destroy', this.remove, this);
+    },
+
+    events: {
+      "click .del": "delete"
+    },
+
     template: _.template($('#saving-item').html()),
 
     render: function(){
-      this.$el.html(this.template(this.model.toJSON()));
+      this.$el.html(this.template(this.model.toJSON())).hide();
+      this.$el.fadeIn('slow');
       return this;
     },
+
+    delete: function(){
+      totalAmount -= parseInt(this.model.get('amount'));
+      this.model.clear();
+    }
   });
 
+  window.totalAmount = 0;
   window.AppView = Backbone.View.extend({
     el: $('#savings-app'),
 
@@ -39,7 +54,7 @@
 
     initialize: function(){
       this.input = this.$("#input");
-      this.totalAmt = $("#total-savings");
+      this.total = this.$("#total-savings");
 
       Savings.bind('all', this.render, this);
       Savings.bind('add', this.addOne, this);
@@ -49,12 +64,14 @@
     },
 
     render: function(){
-      this.totalAmt.text(this.amount);
+      this.total.text(totalAmount);
     },
 
     addOne: function(saving){
       var view = new SavingView({model: saving});
       this.$('#list').append(view.render().el);
+      totalAmount += parseInt(saving.get('amount'));
+      console.log(totalAmount);
     },
 
     addAll: function(){
