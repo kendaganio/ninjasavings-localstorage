@@ -39,3 +39,8 @@ h1 {
 .right {
   float: right;
 }
+
+.del {
+  color: #b3222b;
+  cursor: pointer;
+}
