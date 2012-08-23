@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html>
-<head>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head lang="en">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Backbone + Local Storage</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
   <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
   <div id="savings-app" class="container">
     <h1>Saving is fun!</h1>
-
     <input type="number" id="input" placeholder="How much did you save today?">
-
-    <ul id="list"></ul>
-
-    <hr>
+    <ul id="list"></ul><hr>
     Total Savings: PHP <span id="total-savings"></span>
   </div>
 
@@ -25,8 +28,10 @@
   <!-- TEMPLATES -->
   <script type="text/template" id="saving-item">
     PHP <%= amount %>
+    <span class="del right">[x]</span>
     <span class="right">
     <%= new Date(date_posted).getMonth() + 1 %> <%= new Date(date_posted).getDate() %>, <%= new Date(date_posted).getFullYear() %>
+    &nbsp;
     </span>
   </script>
 
